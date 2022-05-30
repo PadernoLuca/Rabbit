@@ -12,23 +12,23 @@ migrate = Migrate(app,db)
 #Model--------------------------------------------------------------------
 class Utente(db.Model):
     __tablename__ = 'utente'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
     nome = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(80), nullable=False)
-    password = db.Column(db.String(80), nullable=False)
+    password = db.Column(db.String(256), nullable=False)
     cakeday = db.Column(db.Date, nullable=False)
     karma = db.Column(db.Integer, default=0)
 
-    def __init__(self,n,e,p,c,k):
+    """def __init__(self,n,e,p,c,k):
         self.nome=n
         self.email=e
         self.password=p
         self.cakeday=c
-        self.karma=k
+        self.karma=k"""
 
 class Post(db.Model):
-    __tablename__='post'
-    id = db.Column(db.Integer, primary_key=True)
+    __tablename__ = 'post'
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
     data = db.Column(db.Date, nullable=False)
     upvote = db.Column(db.Integer, default=0)
     idUtente = db.Column(db.Integer, db.ForeignKey('Utente.id'), nullable=False)
@@ -37,19 +37,19 @@ class Post(db.Model):
     sub = db.relationship('Subrabbit')
 
 class Immagine(db.Model):
-    __tablename__='immagine'
-    id = db.Column(db.Integer, primary_key=True)
+    __tablename__ = 'immagine'
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
     percorso = db.Column(db.String(80), nullable=False)
     tipo = db.Column(db.Enum('Post', 'Subrabbit', 'Avatar'), nullable=False)
     idPost = db.Column(db.Integer, db.ForeignKey('Post.id'), nullable=False)
     idSub = db.Column(db.Integer, db.ForeignKey('Subrabbit.id'), nullable=False)
-    idAvatar = db.Column(db.Integer, db.ForeignKey('Avatar.id'), nullable=False)
+    idAvatar = db.Column(db.Integer, db.ForeignKey('Utente.id'), nullable=False)
     post = db.relationship('Post')
     sub = db.relationship('Subrabbit')
-    avatar = db.relationship('Avatar')
+    avatar = db.relationship('Utente')
 
 class Follow(db.Model):
-    __tablename__='follow'
+    __tablename__ = 'follow'
     idUtente = db.Column(db.Integer, db.ForeignKey('Utente.id'), primary_key=True,  nullable=False)
     idSeguito = db.Column(db.Integer, db.ForeignKey('Utente.id'), primary_key=True,  nullable=False)
     data = db.Column(db.Date, nullable=False)
@@ -57,7 +57,7 @@ class Follow(db.Model):
     utente2 = db.relationship('Utente')
 
 class Join(db.Model):
-    __tablename__='join'
+    __tablename__ = 'join'
     idUtente = db.Column(db.Integer, db.ForeignKey('Utente.id'), primary_key=True, nullable=False)
     idSub = db.Column(db.Integer, db.ForeignKey('Subrabbit.id'), primary_key=True, nullable=False)
     data = db.Column(db.Date, nullable=False)
@@ -65,16 +65,10 @@ class Join(db.Model):
     sub = db.relationship('Subrabbit')
 
 class Subrabbit(db.Model):
-    __tablename__='subrabbit'
-    id = db.Column(db.Integer, primary_key=True)
+    __tablename__ = 'subrabbit'
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
     nome = db.Column(db.String(80), nullable=False)
     descrizione = db.Column(db.String(200), nullable=False)
-
-class Avatar(db.Model):
-    __tablename__='avatar'
-    id = db.Column(db.Integer, primary_key=True)
-    idUtente = db.Column(db.Integer, db.ForeignKey('Utente.id'), nullable=False)
-    utente = db.relationship('Utente')
 
 #Control-----------------------------------------------------------------
 @app.route('/')
@@ -82,15 +76,15 @@ def home():
     return render_template('index.html')
 
 @app.route('/login')
-def players():
-    return render_template('login.html', )
+def login():
+    return render_template('login.html')
 
 @app.route('/registra')
-def coaches():
-    return render_template('registra.html', )
+def register():
+    return render_template('registra.html')
 
 @app.route('/registra/utente', methods = ['POST'])
-def insPlayer():
+def insUser():
     n = request.args.get('name')
     e = request.args.get('email')
     p = request.args.get('password')
@@ -108,7 +102,7 @@ def insPlayer():
 
     return render_template('index.html')
 
-#@app.route('/teamD/<name>')
-#def teamDetail():
-#    t = db.session.query(Team).filter_by(Team.name == name).first()
-#    return render_template('teamDetail.html', team=t)
+"""@app.route('/teamD/<name>')
+def teamDetail():
+    t = db.session.query(Team).filter_by(Team.name == name).first()
+    return render_template('teamDetail.html', team=t)"""
